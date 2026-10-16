@@ -1,0 +1,84 @@
+---
+title: "Documentation: sales_summary.R"
+author: "Balwinder Singh Bangar"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: html_document
+---
+
+**AI Assistance Declaration:** I used Claude (Anthropic, Claude Sonnet 5.5, October 2026) for drafting and formatting suggestions for the README, the R Markdown documentation and the reflection. Prompts used: see `Appendix.md`. I verified outputs by running the script in R, knitting the .Rmd to HTML, and rendering the Markdown files with pandoc to check the syntax. All final calculations are done by myself. I am responsible for the accuracy and originality of this work.
+
+# Purpose
+
+`scripts/sales_summary.R` simulates a small **synthetic** sales dataset and
+summarises total revenue by region. It demonstrates a simple, reproducible
+workflow using base R only.
+
+# Inputs
+
+| Input | Description |
+|-------|-------------|
+| *(none)* | Data is generated inside the script with `set.seed(400)`, so results are reproducible. No real or personal data is used. |
+
+# Outputs
+
+| File | Description |
+|------|-------------|
+| `output/revenue_by_region.csv` | Total revenue per region, sorted high to low |
+| `output/revenue_by_region.png` | Bar chart of the same summary |
+
+# Walkthrough
+
+## Step 1: Simulate data
+
+Each row is one order with a region, product, number of units and unit price.
+Revenue is `units * unit_price`.
+
+```{r simulate}
+set.seed(400)
+n <- 200
+
+sales <- data.frame(
+  order_id   = seq_len(n),
+  region     = sample(c("East", "West", "North", "South"), n, replace = TRUE),
+  product    = sample(c("Widget", "Gadget", "Gizmo"), n, replace = TRUE),
+  units      = rpois(n, lambda = 5) + 1,
+  unit_price = round(runif(n, min = 10, max = 50), 2)
+)
+sales$revenue <- sales$units * sales$unit_price
+
+head(sales)
+```
+
+## Step 2: Summarise revenue by region
+
+```{r summarise}
+by_region <- aggregate(revenue ~ region, data = sales, FUN = sum)
+by_region <- by_region[order(-by_region$revenue), ]
+by_region$revenue <- round(by_region$revenue, 2)
+
+knitr::kable(by_region, caption = "Total revenue by region (synthetic data)")
+```
+
+## Step 3: Visualise
+
+```{r plot, fig.cap = "Total revenue by region (synthetic data)"}
+barplot(by_region$revenue, names.arg = by_region$region,
+        main = "Total Revenue by Region (Synthetic Data)",
+        xlab = "Region", ylab = "Revenue ($)", col = "steelblue")
+```
+
+## Step 4: Save results
+
+The standalone script also writes the CSV and PNG to `output/`. This step is
+shown for reference but is not run when knitting:
+
+```{r save, eval = FALSE}
+dir.create("output", showWarnings = FALSE)
+write.csv(by_region, "output/revenue_by_region.csv", row.names = FALSE)
+```
+
+# How to run
+
+```bash
+Rscript scripts/sales_summary.R
+```
