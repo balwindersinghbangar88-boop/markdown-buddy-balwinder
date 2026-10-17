@@ -35,7 +35,7 @@ The analysis script itself uses base R only.
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-github-username>/markdown-buddy-balwinder.git
+git clone https://github.com/balwindersinghbangar88-boop/markdown-buddy-balwinder.git
 cd markdown-buddy-balwinder
 ```
 
